@@ -24,13 +24,6 @@
 
 ;; See https://github.com/pwalsh/pipenv.el for documentation.
 
-;; TODO: support all flag commands:
-;;   --envs ; --rm ;--bare ; --completion ; --two ; --three ; --python
-;; TODO: support all sub commands:
-;;   check ; graph ; install ; lock ; open ; run ; shell ; uninstall ; update
-;; TODO: functions for integration with projectile hooks
-;; TODO: integration with anaconda-mode
-
 ;;; Code:
 
 (require 'f)
@@ -106,6 +99,33 @@
   "Return the help for Pipenv."
   (interactive)
   (princ (pipenv--command "--help")))
+
+(defun pipenv-check ()
+  "Checks for security vulnerabilities and against PEP 508 \
+markers provided in Pipfile."
+  (pipenv--command "check"))
+
+(defun pipenv-graph ()
+  "Displays currently-install dependency graph information."
+  (pipenv--command "graph"))
+
+(defun pipenv-install(&rest packages)
+  "Installs provided packages and adds them to Pipfile, \
+or (if none is given), installs all packages."
+  (apply 'pipenv--command (cons "install" packages)))
+
+(defun pipenv-lock ()
+  "Generates Pipfile.lock."
+  (pipenv--command "lock"))
+
+(defun pipenv-uninstall(&rest packages)
+  "Uninstalls a provided package and removes it from Pipfile."
+  (apply 'pipenv--command (cons "uninstall" packages)))
+
+(defun pipenv-update ()
+  "Uninstalls all packages, and reinstalls packages in Pipfile \
+to latest compatible versions."
+  (pipenv--command "update"))
 
 (defun pipenv-project? ()
   "Are we in a Pipenv project?"
