@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/repo
     docker:
-      - image: pwalsh/emacs:0.0.1
+      - image: pwalsh/emacs:0.0.2
     steps:
       - checkout
       - run:
