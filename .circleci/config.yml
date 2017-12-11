@@ -1,0 +1,14 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/repo
+    docker:
+      - image: pwalsh/emacs:0.0.2
+    steps:
+      - checkout
+       - run:
+          name: Install test dependencies
+          command: make install
+      - run:
+          name: Run tests
+          command: make run

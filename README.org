@@ -1,3 +1,5 @@
 * pipenv.el
 
+[![CircleCI](https://circleci.com/gh/pwalsh/pipenv.el.svg?style=svg)](https://circleci.com/gh/pwalsh/pipenv.el)
+
 Use [[Pipenv][https://docs.pipenv.org]] to manage, your Pythons in Emacs.
