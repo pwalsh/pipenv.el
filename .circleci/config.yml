@@ -6,7 +6,7 @@ jobs:
       - image: pwalsh/emacs:0.0.2
     steps:
       - checkout
-       - run:
+      - run:
           name: Install test dependencies
           command: make install
       - run:
