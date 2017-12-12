@@ -7,6 +7,9 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Create a test project
+          command: mkdir existing-project && cd existing-project && pipenv --python 2 && cd ../
+      - run:
           name: Install test dependencies
           command: make install
       - run:

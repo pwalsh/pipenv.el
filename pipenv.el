@@ -90,6 +90,10 @@
   (interactive)
   (princ (pipenv--command "--man")))
 
+(defun pipenv-python (version)
+  "Specify which version of Python virtualenv should use."
+  (apply 'pipenv--command (list "--python" version)))
+
 (defun pipenv-version ()
   "Return the version of the currently installed Pipenv."
   (interactive)
