@@ -131,6 +131,14 @@ or (if none is given), installs all packages."
 to latest compatible versions."
   (pipenv--command "update"))
 
+(defun pipenv-shell ()
+  "Spawn a shell within the virtualenv."
+  (interactive)
+  (let ((name (generate-new-buffer-name "*TEST NAME*")))
+    (pop-to-buffer name)
+    (shell (current-buffer))
+    (process-send-string nil "pipenv shell\n")))
+
 (defun pipenv-project? ()
   "Are we in a Pipenv project?"
   (f-traverse-upwards
