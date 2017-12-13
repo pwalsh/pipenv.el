@@ -134,7 +134,7 @@ to latest compatible versions."
 (defun pipenv-shell ()
   "Spawn a shell within the virtualenv."
   (interactive)
-  (let ((name (generate-new-buffer-name "*TEST NAME*")))
+  (let ((name (generate-new-buffer-name (concat "*shell " (pipenv-where) "*"))))
     (pop-to-buffer name)
     (shell (current-buffer))
     (process-send-string nil "pipenv shell\n")))
