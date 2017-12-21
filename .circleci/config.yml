@@ -14,4 +14,4 @@ jobs:
           command: make install
       - run:
           name: Run tests
-          command: make run
+          command: make test

@@ -1,4 +1,4 @@
-.PHONY: help
+.PHONY: help install test
 .DEFAULT_GOAL := help
 
 help: # http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
@@ -7,5 +7,5 @@ help: # http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 install: ## install dependencies for tests
 	cask install --dev
 
-run: ## run tests
+test: ## run tests
 	cask exec ert-runner

@@ -116,17 +116,17 @@
   (pipenv--command "--update"))
 
 (defun pipenv-where ()
-  "Return path to project home directory, or nil if not in a Pipenv project."
+  "Return path to project home directory, or a message if not in a Pipenv project."
   (interactive)
   (pipenv--command "--where"))
 
 (defun pipenv-venv ()
-  "Return path to the project venv directory, or nil if not in a Pipenv project."
+  "Return path to the project venv directory, or a message if not in a Pipenv project."
   (interactive)
   (pipenv--command "--venv"))
 
 (defun pipenv-py ()
-  "Return path to project Python, or nil if not in a Pipenv project."
+  "Return path to project Python, or a message if not in a Pipenv project."
   (interactive)
   (pipenv--command "--py"))
 
@@ -222,8 +222,9 @@ to latest compatible versions."
 
 (defun pipenv-set ()
   "Set the active Python version from Pipenv."
-  (pipenv-venv)
-  (pipenv-py))
+  (progn
+    (pipenv-venv)
+    (pipenv-py)))
 
 (defun pipenv-unset ()
   "Unset the active Pipenv version from Pipenv; back to defaults."

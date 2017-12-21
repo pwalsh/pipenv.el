@@ -1,5 +1,6 @@
 ;; Test suite for pipenv.el
 
+(require 'ert-async)
 (require 'f)
 (require 's)
 
@@ -7,61 +8,75 @@
 
 (setq existing-project (f-expand "existing-project" default-directory))
 (setq new-project (f-expand "new-project" temporary-file-directory))
+(setq pipenv-accept-timeout nil)
 
-(ert-deftest pipenv-test-core-functions ()
-  (should (equal (pipenv--build-command '("command" "arg1" "arg2"))
-                 "command arg1 arg2"))
-  (should (equal (pipenv--clean-response "Some response\n") "Some response")))
+(ert-deftest-async pipenv-with-no-active-project (done)
+  "Basic behavior when we do not have an active project."
+  (accept-process-output (pipenv-where) pipenv-accept-timeout)
+  (should (not (f-directory? pipenv-process-response)))
 
-(ert-deftest pipenv-with-no-active-project ()
-  (should (equal (pipenv-where) nil))
-  (should (equal (pipenv-venv) nil))
-  (should (equal (pipenv-py) nil))
-  (should (equal nil python-shell-virtualenv-path))
-  (should (equal nil python-shell-virtualenv-root))
-  (should (equal "python" python-shell-interpreter)))
+  (accept-process-output (pipenv-venv) pipenv-accept-timeout)
+  (should (not (f-directory? pipenv-process-response)))
 
-(ert-deftest pipenv-with-existing-project ()
+  (accept-process-output (pipenv-py) pipenv-accept-timeout)
+  (should (not (f-directory? pipenv-process-response)))
+
+  (should (s-equals? nil python-shell-virtualenv-path))
+  (should (s-equals? nil python-shell-virtual\env-root))
+  (should (s-equals? "python" python-shell-interpreter))
+  (funcall done))
+
+(ert-deftest-async pipenv-with-existing-project (done)
+  "Basic behavior when we are in an existing project."
   (cd existing-project)
-  (pipenv-set)
-  (should (s-ends-with? (f-filename existing-project) (pipenv-where)))
-  (should (s-contains? (f-filename existing-project) (pipenv-venv)))
-  (should (s-contains? (f-filename existing-project) (pipenv-py)))
+
+  (accept-process-output (pipenv-set) pipenv-accept-timeout)
+
+  (accept-process-output (pipenv-where) pipenv-accept-timeout)
+  (should (s-ends-with? (f-filename existing-project) pipenv-process-response))
+
+  (accept-process-output (pipenv-venv) pipenv-accept-timeout)
+  (should (s-contains? (f-filename existing-project) pipenv-process-response))
+
+  (accept-process-output (pipenv-py) pipenv-accept-timeout)
+  (should (s-contains? (f-filename existing-project) pipenv-process-response))
+
   (should (s-contains? (f-filename existing-project) python-shell-virtualenv-path))
   (should (s-contains? (f-filename existing-project) python-shell-virtualenv-root))
   (should (s-contains? (f-filename existing-project) python-shell-interpreter))
-  (pipenv-unset)
-  (should (equal nil python-shell-virtualenv-path))
-  (should (equal nil python-shell-virtualenv-root))
-  (should (equal "python" python-shell-interpreter)))
 
-(ert-deftest pipenv-with-new-project ()
+  (pipenv-unset)
+
+  (should (s-equals? nil python-shell-virtualenv-path))
+  (should (s-equals? nil python-shell-virtualenv-root))
+  (should (s-equals? "python" python-shell-interpreter))
+  (funcall done))
+
+(ert-deftest-async pipenv-with-new-project (done)
+  "Basic behavior when we create and enter a new project."
   (f-mkdir new-project)
   (cd new-project)
-  (pipenv-python "2")
-  (pipenv-set)
-  (should (s-ends-with? (f-filename new-project) (pipenv-where)))
-  (should (s-contains? (f-filename new-project) (pipenv-venv)))
-  (should (s-contains? (f-filename new-project) (pipenv-py)))
-  (should (s-contains? (f-filename new-project) python-shell-virtualenv-path))
-  (should (s-contains? (f-filename new-project) python-shell-virtualenv-root))
-  (should (s-contains? (f-filename new-project) python-shell-interpreter))
-  (pipenv-unset)
-  (should (equal nil python-shell-virtualenv-path))
-  (should (equal nil python-shell-virtualenv-root))
-  (should (equal "python" python-shell-interpreter))
-  (f-delete new-project 1))
+  (accept-process-output (pipenv-python "2") pipenv-accept-timeout)
+  (accept-process-output (pipenv-set) pipenv-accept-timeout)
 
-;; (pipenv-update)
-;; (pipenv-man)
-;; (pipenv-version)
-;; (pipenv-help)
-;; (pipenv-check)
-;; (pipenv-graph)
-;; (pipenv-install)
-;; (pipenv-lock)
-;; (pipenv-uninstall)
-;; (pipenv-update)
-;; (pipenv-project?)
-;; (pipenv-set)
-;; (pipenv-unset)
+  (accept-process-output (pipenv-where) pipenv-accept-timeout)
+  (should (s-ends-with? (f-filename new-project) pipenv-process-response))
+
+  ;;(accept-process-output (pipenv-venv) pipenv-accept-timeout)
+  ;;(should (s-contains? (f-filename new-project) pipenv-process-response))
+
+  (accept-process-output (pipenv-py) pipenv-accept-timeout)
+  (should (s-contains? (f-filename new-project) pipenv-process-response))
+
+  ;;(should (s-contains? (f-filename new-project) python-shell-virtualenv-path))
+  ;;(should (s-contains? (f-filename new-project) python-shell-virtualenv-root))
+  (should (s-contains? (f-filename new-project) python-shell-interpreter))
+
+  (pipenv-unset)
+
+  (should (s-equals? nil python-shell-virtualenv-path))
+  (should (s-equals? nil python-shell-virtualenv-root))
+  (should (s-equals? "python" python-shell-interpreter))
+
+  (f-delete new-project 1)
+  (funcall done))

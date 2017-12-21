@@ -7,4 +7,5 @@
 (depends-on "f" "0.19.0")
 
 (development
- (depends-on "ert-runner"))
+ (depends-on "ert-runner")
+ (depends-on "ert-async"))
