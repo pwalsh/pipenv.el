@@ -3,4 +3,6 @@
 #+ATTR_HTML: :alt CircleCI image :title CircleCI
 [[https://circleci.com/gh/pwalsh/pipenv.el][https://circleci.com/gh/pwalsh/pipenv.el.svg?style=svg]]
 
-Use [[Pipenv][https://docs.pipenv.org]] to manage, your Pythons in Emacs.
+A [[https://docs.pipenv.org][Pipenv]] porcelain inside Emacs.
+
+*WORK IN PROGRESS*.
