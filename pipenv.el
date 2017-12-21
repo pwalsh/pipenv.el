@@ -1,11 +1,11 @@
-;;; pipenv.el --- Work with Pipenv from Emacs.  -*- lexical-binding: t; -*-
+;;; pipenv.el --- A Pipenv porcelain inside Emacs.  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2017 by Paul Walsh
 
 ;; Author: Paul Walsh <paulywalsh@gmail.com>
 ;; URL: https://github.com/pwalsh/pipenv.el
 ;; Version: 0.0.1-alpha
-;; Package-Requires: ((emacs "25")(s "1.12.0")(f "0.19.0"))
+;; Package-Requires: ((emacs "25")(f "0.19.0")(s "1.12.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,30 +31,71 @@
 (require 's)
 
 (defgroup pipenv nil
-  "Pipenv integration with Emacs."
+  "A Pipenv porcelain inside Emacs."
   :prefix "pipenv-"
-  :group 'languages)
+  :group 'python)
 
 (defcustom pipenv-executable
   (executable-find "pipenv")
-  "The Pipenv executable.."
+  "The Pipenv executable."
   :type '(file :must-match t)
   :safe #'file-directory-p
   :group 'pipenv)
 
-(defun pipenv--build-command (command-args)
-  "Build shell command as a string"
-  (s-join " " command-args))
+(defcustom pipenv-buffer-name
+  "*Pipenv*"
+  "The name of the Pipenv buffer."
+  :type 'string
+  :group 'pipenv)
 
-(defun pipenv--clean-response (response)
-  "Clean up string response from shell command."
-  (s-chomp response))
+(defcustom pipenv-process-name
+  "Pipenv"
+  "The name of the Pipenv process."
+  :type 'string
+  :group 'pipenv)
+
+(defun pipenv--process-filter-buffer-insert (process response)
+  "Process filter to insert process response in process buffer."
+  ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Filter-Functions.html#Filter-Functions
+  (when (buffer-live-p (process-buffer process))
+    (with-current-buffer (process-buffer process)
+      (let ((moving (= (point) (process-mark process))))
+        (save-excursion
+          ;; Insert the text, advancing the process marker.
+          (goto-char (process-mark process))
+          (insert response)
+          (set-marker (process-mark process) (point)))
+        (if moving (goto-char (process-mark process)))))))
+
+(defun pipenv--process-filter-message-insert (process response)
+  "Process filter to generate a message on response."
+  (message (concat "Finished " (s-join " " (process-command process)))))
+
+(defun pipenv--process-filter-variable-insert(process response)
+  (setq pipenv-process-response response))
+
+(defun pipenv--process-filter (process response)
+  (pipenv--process-filter-variable-insert process response)
+  (pipenv--process-filter-message-insert process response)
+  (pipenv--process-filter-buffer-insert process response))
+
+;; (defun pipenv--process-sentinel (process event))
+
+(defun pipenv--make-pipenv-process (command &optional filter sentinel)
+  "Construct a Pipenv process."
+  (make-process
+   :name pipenv-process-name
+   :buffer pipenv-buffer-name
+   :command command
+   :coding 'utf-8-unix
+   :filter filter
+   :sentinel sentinel))
 
 (defun pipenv--command (&rest args)
-  "Command as string helper. args is a list of arguments to the command."
-  (let* ((command-args (cons pipenv-executable args))
-         (command (pipenv--build-command command-args)))
-    (pipenv--clean-response (shell-command-to-string command))))
+  ""
+  (let ((command (cons pipenv-executable args))
+        (filter 'pipenv--process-filter))
+    (pipenv--make-pipenv-process command filter)))
 
 (defun pipenv-update ()
   "Update Pipenv and pip to latest."
@@ -64,26 +105,17 @@
 (defun pipenv-where ()
   "Return path to project home directory, or nil if not in a Pipenv project."
   (interactive)
-  (let ((response (pipenv--command "--where")))
-    (if (f-directory? response)
-        response
-      nil)))
+  (pipenv--command "--where"))
 
 (defun pipenv-venv ()
   "Return path to the project venv directory, or nil if not in a Pipenv project."
   (interactive)
-  (let ((response (pipenv--command "--venv")))
-    (if (f-directory? response)
-        response
-      nil)))
+  (pipenv--command "--venv"))
 
 (defun pipenv-py ()
   "Return path to project Python, or nil if not in a Pipenv project."
   (interactive)
-  (let ((response (pipenv--command "--py")))
-    (if (f-file? response)
-        response
-      nil)))
+  (pipenv--command "--py"))
 
 (defun pipenv-python (version)
   "Specify which version of Python virtualenv should use."
@@ -137,6 +169,25 @@ or (if none is given), installs all packages."
   (interactive)
   (pipenv--command "lock"))
 
+(defun pipenv-open ()
+  "View a given module in your editor."
+  (interactive)
+  (pipenv--command "open"))
+
+(defun pipenv-run (&rest command)
+  "Spawns a command installed into the virtualenv."
+  (interactive)
+  (pipenv--command (cons "run" command)))
+
+(defun pipenv-shell ()
+  "Spawn a shell within the virtualenv."
+  (interactive)
+  (let ((name (generate-new-buffer-name (concat "*shell " (pipenv-where) "*"))))
+    (pop-to-buffer name)
+    (shell (current-buffer))
+    (process-send-string nil "pipenv shell\n")
+    (comint-clear-buffer)))
+
 (defun pipenv-uninstall(&rest packages)
   "Uninstalls a provided package and removes it from Pipfile."
   (interactive "sWhich Python packages should be uninstalled? ")
@@ -148,15 +199,6 @@ to latest compatible versions."
   (interactive)
   (pipenv--command "update"))
 
-(defun pipenv-shell ()
-  "Spawn a shell within the virtualenv."
-  (interactive)
-  (let ((name (generate-new-buffer-name (concat "*shell " (pipenv-where) "*"))))
-    (pop-to-buffer name)
-    (shell (current-buffer))
-    (process-send-string nil "pipenv shell\n")
-    (comint-clear-buffer)))
-
 (defun pipenv-project? ()
   "Are we in a Pipenv project?"
   (f-traverse-upwards
@@ -167,9 +209,10 @@ to latest compatible versions."
 
 (defun pipenv-set ()
   "Set the active Python version from Pipenv."
-  (setq
-   python-shell-virtualenv-root (pipenv-venv)
-   python-shell-interpreter (or (pipenv-py) "python")))
+  (accept-process-output (pipenv-venv) 10)
+  (setq python-shell-virtualenv-root pipenv-process-response)
+  (accept-process-output (pipenv-py) 10)
+  (setq python-shell-interpreter (or pipenv-process-response "python")))
 
 (defun pipenv-unset ()
   "Unset the active Pipenv version from Pipenv; back to defaults."
