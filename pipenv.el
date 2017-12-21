@@ -54,6 +54,10 @@
   :type 'string
   :group 'pipenv)
 
+(defun pipenv--clean-response (response)
+  "Clean up string response from shell command."
+  (s-chomp response))
+
 (defun pipenv--process-filter-buffer-insert (process response)
   "Process filter to insert process response in process buffer."
   ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Filter-Functions.html#Filter-Functions
@@ -72,12 +76,21 @@
   (message (concat "Finished " (s-join " " (process-command process)))))
 
 (defun pipenv--process-filter-variable-insert(process response)
+  (cond ((and
+          (s-equals? (nth 0 (last (process-command process))) "--py")
+          (f-file? response))
+        (setq python-shell-interpreter response))
+        ((and
+          (s-equals? (nth 0 (last (process-command process))) "--venv")
+          (f-directory? response))
+         (setq python-shell-virtualenv-root response)))
   (setq pipenv-process-response response))
 
 (defun pipenv--process-filter (process response)
-  (pipenv--process-filter-variable-insert process response)
-  (pipenv--process-filter-message-insert process response)
-  (pipenv--process-filter-buffer-insert process response))
+  (let ((clean-response (pipenv--clean-response response)))
+    (pipenv--process-filter-variable-insert process clean-response)
+    (pipenv--process-filter-message-insert process clean-response)
+    (pipenv--process-filter-buffer-insert process clean-response)))
 
 ;; (defun pipenv--process-sentinel (process event))
 
@@ -209,10 +222,8 @@ to latest compatible versions."
 
 (defun pipenv-set ()
   "Set the active Python version from Pipenv."
-  (accept-process-output (pipenv-venv) 10)
-  (setq python-shell-virtualenv-root pipenv-process-response)
-  (accept-process-output (pipenv-py) 10)
-  (setq python-shell-interpreter (or pipenv-process-response "python")))
+  (pipenv-venv)
+  (pipenv-py))
 
 (defun pipenv-unset ()
   "Unset the active Pipenv version from Pipenv; back to defaults."
