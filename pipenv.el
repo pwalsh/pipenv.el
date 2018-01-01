@@ -76,6 +76,7 @@
   (message (concat "Finished " (s-join " " (process-command process)))))
 
 (defun pipenv--process-filter-variable-insert(process response)
+  "Process filter to set several global variables after process execution."
   (cond ((and
           (s-equals? (nth 0 (last (process-command process))) "--py")
           (f-file? response))
@@ -91,8 +92,6 @@
     (pipenv--process-filter-variable-insert process clean-response)
     (pipenv--process-filter-message-insert process clean-response)
     (pipenv--process-filter-buffer-insert process clean-response)))
-
-;; (defun pipenv--process-sentinel (process event))
 
 (defun pipenv--make-pipenv-process (command &optional filter sentinel)
   "Construct a Pipenv process."
@@ -189,13 +188,13 @@ or (if none is given), installs all packages."
 
 (defun pipenv-run (&rest command)
   "Spawns a command installed into the virtualenv."
-  (interactive)
+  (interactive "sEnter the command to call: ")
   (pipenv--command (cons "run" command)))
 
 (defun pipenv-shell ()
   "Spawn a shell within the virtualenv."
   (interactive)
-  (let ((name (generate-new-buffer-name (concat "*shell " (pipenv-where) "*"))))
+  (let ((name (generate-new-buffer-name (concat "*pipenv shell*"))))
     (pop-to-buffer name)
     (shell (current-buffer))
     (process-send-string nil "pipenv shell\n")
@@ -222,15 +221,19 @@ to latest compatible versions."
 
 (defun pipenv-set ()
   "Set the active Python version from Pipenv."
+  (interactive)
   (progn
     (pipenv-venv)
     (pipenv-py)))
 
 (defun pipenv-unset ()
   "Unset the active Pipenv version from Pipenv; back to defaults."
+  (interactive)
   (setq
    python-shell-virtualenv-root nil
    python-shell-interpreter "python"))
+
+(add-hook 'projectile-after-switch-project-hook #'pipenv-set)
 
 (provide 'pipenv)
 
