@@ -8,4 +8,4 @@
 
 (development
  (depends-on "ert-runner")
- (depends-on "ert-async"))
+ (depends-on "package-lint"))
