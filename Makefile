@@ -7,8 +7,8 @@ help: # http://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
 install: ## install dependencies for tests
 	cask install --dev
 
-lint: ## run linters
-	cask exec emacs -Q -batch -l package-lint.el -f package-lint-batch-and-exit pipenv.el
+lint: ## run linter
+	cask exec emacs -Q -batch -l test/lint-init.el -l package-lint.el -f package-lint-batch-and-exit pipenv.el
 
 test: ## run tests
 	cask exec ert-runner

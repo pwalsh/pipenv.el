@@ -1,4 +1,4 @@
-;;; pipenv.el --- A Pipenv porcelain inside Emacs.  -*- lexical-binding: t; -*-
+;;; pipenv.el --- A Pipenv porcelain.  -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2017 by Paul Walsh
 
@@ -55,11 +55,17 @@
   :group 'pipenv)
 
 (defun pipenv--clean-response (response)
-  "Clean up string response from shell command."
+  "Clean up RESPONSE from shell command."
   (s-chomp response))
 
+(defun pipenv--force-list (argument)
+  "Force ARGUMENT to a list."
+  (if (listp argument)
+      argument
+    (s-split " " argument)))
+
 (defun pipenv--process-filter-buffer-insert (process response)
-  "Process filter to insert process response in process buffer."
+  "Filter for PROCESS, insert RESPONSE in process buffer."
   ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Filter-Functions.html#Filter-Functions
   (when (buffer-live-p (process-buffer process))
     (with-current-buffer (process-buffer process)
@@ -72,11 +78,11 @@
         (if moving (goto-char (process-mark process)))))))
 
 (defun pipenv--process-filter-message-insert (process response)
-  "Process filter to generate a message on response."
+  "Filter for PROCESS, generate a message from RESPONSE."
   (message (concat "Finished " (s-join " " (process-command process)))))
 
 (defun pipenv--process-filter-variable-insert(process response)
-  "Process filter to set several global variables after process execution."
+  "Filter for PROCESS, which sets several global variables based on RESPONSE."
   (cond ((and
           (s-equals? (nth 0 (last (process-command process))) "--py")
           (f-file? response))
@@ -88,13 +94,14 @@
   (setq pipenv-process-response response))
 
 (defun pipenv--process-filter (process response)
+  "Pipenv default filter stack PROCESS and RESPONSE handling."
   (let ((clean-response (pipenv--clean-response response)))
     (pipenv--process-filter-variable-insert process clean-response)
     (pipenv--process-filter-message-insert process clean-response)
     (pipenv--process-filter-buffer-insert process clean-response)))
 
 (defun pipenv--make-pipenv-process (command &optional filter sentinel)
-  "Construct a Pipenv process."
+  "Make a Pipenv process from COMMAND; optional custom FILTER or SENTINEL."
   (make-process
    :name pipenv-process-name
    :buffer pipenv-buffer-name
@@ -103,8 +110,8 @@
    :filter filter
    :sentinel sentinel))
 
-(defun pipenv--command (&rest args)
-  ""
+(defun pipenv--command (args)
+  "Call Pipenv with ARGS and the default filter stack."
   (let ((command (cons pipenv-executable args))
         (filter 'pipenv--process-filter))
     (pipenv--make-pipenv-process command filter)))
@@ -112,84 +119,100 @@
 (defun pipenv-update ()
   "Update Pipenv and pip to latest."
   (interactive)
-  (pipenv--command "--update"))
+  (pipenv--command (list "--update")))
 
 (defun pipenv-where ()
   "Return path to project home directory, or a message if not in a Pipenv project."
   (interactive)
-  (pipenv--command "--where"))
+  (pipenv--command (list "--where")))
 
 (defun pipenv-venv ()
   "Return path to the project venv directory, or a message if not in a Pipenv project."
   (interactive)
-  (pipenv--command "--venv"))
+  (pipenv--command (list "--venv")))
 
 (defun pipenv-py ()
   "Return path to project Python, or a message if not in a Pipenv project."
   (interactive)
-  (pipenv--command "--py"))
+  (pipenv--command (list "--py")))
 
-(defun pipenv-python (version)
-  "Specify which version of Python virtualenv should use."
-  (interactive "sWhich Python version should be used for this project? ")
-  (apply 'pipenv--command (list "--python" version)))
-
-(defun pipenv-three ()
-  "Use Python 3 when creating virtualenv."
+(defun pipenv-envs ()
+  "Return Pipenv's environment variable options."
   (interactive)
-  (pipenv--command "--three"))
+  (pipenv--command (list "--envs")))
 
-(defun pipenv-two ()
-  "Use Python 2 when creating virtualenv."
+(defun pipenv-rm ()
+  "Remove the virtualenv of the current project."
   (interactive)
-  (pipenv--command "--two"))
+  (pipenv--command (list "--rm")))
 
-(defun pipenv-version ()
-  "Return the version of the currently installed Pipenv."
+(defun pipenv-completion ()
+  "Return output completion for eval in a shell."
   (interactive)
-  (pipenv--command "--version"))
+  (pipenv--command (list "--completion")))
 
 (defun pipenv-man ()
   "Return the man page for Pipenv."
   (interactive)
-  (pipenv--command "--man"))
+  (pipenv--command (list "--man")))
+
+(defun pipenv-three ()
+  "Use Python 3 when creating virtualenv."
+  (interactive)
+  (pipenv--command (list "--three")))
+
+(defun pipenv-two ()
+  "Use Python 2 when creating virtualenv."
+  (interactive)
+  (pipenv--command (list "--two")))
+
+(defun pipenv-python (version)
+  "Specify which VERSION of Python virtualenv should use."
+  (interactive "sWhich Python version should be used for this project? ")
+  (pipenv--command (list "--python" version)))
+
+(defun pipenv-version ()
+  "Return the version of the currently installed Pipenv."
+  (interactive)
+  (pipenv--command (list "--version")))
 
 (defun pipenv-help ()
   "Return the help for Pipenv."
   (interactive)
-  (pipenv--command "--help"))
+  (pipenv--command (list "--help")))
 
 (defun pipenv-check ()
-  "Checks for security vulnerabilities and against PEP 508 \
+  "Check for security vulnerabilities and against PEP 508 \
 markers provided in Pipfile."
   (interactive)
-  (pipenv--command "check"))
+  (pipenv--command (list "check")))
 
 (defun pipenv-graph ()
   "Displays currently-install dependency graph information."
   (interactive)
-  (pipenv--command "graph"))
+  (pipenv--command (list "graph")))
 
-(defun pipenv-install(&rest packages)
-  "Installs provided packages and adds them to Pipfile, \
+(defun pipenv-install(packages)
+  "Installs PACKAGES and adds them to Pipfile, \
 or (if none is given), installs all packages."
-  (interactive "sWhich Python packages should be installed? ")
-  (apply 'pipenv--command (cons "install" packages)))
+  (interactive "sWhich Python packages should be installed (separate with space)? ")
+  (pipenv--command (cons "install" (pipenv--force-list packages))))
 
 (defun pipenv-lock ()
-  "Generates Pipfile.lock."
+  "Generate Pipfile.lock."
   (interactive)
-  (pipenv--command "lock"))
+  (pipenv--command (list "lock")))
 
-(defun pipenv-open ()
-  "View a given module in your editor."
+(defun pipenv-open (module)
+  "View a given MODULE in your editor."
+  ;; TODO: implement open in lisp so files open in current Emacs session.
   (interactive)
-  (pipenv--command "open"))
+  (pipenv--command (list "open" module)))
 
-(defun pipenv-run (&rest command)
-  "Spawns a command installed into the virtualenv."
+(defun pipenv-run (command)
+  "Spawns a COMMAND installed into the virtualenv."
   (interactive "sEnter the command to call: ")
-  (pipenv--command (cons "run" command)))
+  (pipenv--command (cons "run" (pipenv--force-list command))))
 
 (defun pipenv-shell ()
   "Spawn a shell within the virtualenv."
@@ -200,16 +223,16 @@ or (if none is given), installs all packages."
     (process-send-string nil "pipenv shell\n")
     (comint-clear-buffer)))
 
-(defun pipenv-uninstall(&rest packages)
-  "Uninstalls a provided package and removes it from Pipfile."
-  (interactive "sWhich Python packages should be uninstalled? ")
-  (apply 'pipenv--command (cons "uninstall" packages)))
+(defun pipenv-uninstall(packages)
+  "Uninstalls PACKAGES and removes it from Pipfile."
+  (interactive "sWhich Python packages should be uninstalled (separate with space)? ")
+  (pipenv--command (cons "uninstall" (pipenv--force-list packages))))
 
 (defun pipenv-update ()
   "Uninstalls all packages, and reinstalls packages in Pipfile \
 to latest compatible versions."
   (interactive)
-  (pipenv--command "update"))
+  (pipenv--command (list "update")))
 
 (defun pipenv-project? ()
   "Are we in a Pipenv project?"
@@ -222,9 +245,8 @@ to latest compatible versions."
 (defun pipenv-set ()
   "Set the active Python version from Pipenv."
   (interactive)
-  (progn
-    (pipenv-venv)
-    (pipenv-py)))
+  (pipenv-venv)
+  (pipenv-py))
 
 (defun pipenv-unset ()
   "Unset the active Pipenv version from Pipenv; back to defaults."
@@ -233,7 +255,15 @@ to latest compatible versions."
    python-shell-virtualenv-root nil
    python-shell-interpreter "python"))
 
-(add-hook 'projectile-after-switch-project-hook #'pipenv-set)
+(defun pipenv-projectile-hook-example ()
+  "An example function for projectile integration, \
+with 'pipenv-shell' and 'run-python' integration."
+  (if (pipenv-project?)
+      (progn
+        (pipenv-set)
+        (sleep-for 1)
+        (pipenv-shell)
+        (run-python))))
 
 (provide 'pipenv)
 

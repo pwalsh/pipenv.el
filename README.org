@@ -5,4 +5,15 @@
 
 A [[https://docs.pipenv.org][Pipenv]] porcelain inside Emacs.
 
-*WORK IN PROGRESS*.
+** Integrations
+
+*** Projectile
+
+#+BEGIN_SRC elisp
+(add-hook 'projectile-after-switch-project-hook #'pipenv-set)
+#+END_SRC
+
+#+BEGIN_SRC elisp
+;; Example function included that runs a Pipenv shell and a Python interpreter
+(add-hook 'projectile-after-switch-project-hook #'pipenv-projectile-hook-example)
+#+END_SRC
