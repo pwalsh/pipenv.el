@@ -42,15 +42,27 @@
   :safe #'file-directory-p
   :group 'pipenv)
 
-(defcustom pipenv-buffer-name
-  "*Pipenv*"
-  "The name of the Pipenv buffer."
-  :type 'string
-  :group 'pipenv)
-
 (defcustom pipenv-process-name
   "Pipenv"
   "The name of the Pipenv process."
+  :type 'string
+  :group 'pipenv)
+
+(defcustom pipenv-process-buffer-name
+  "*Pipenv*"
+  "The name of the Pipenv process buffer."
+  :type 'string
+  :group 'pipenv)
+
+(defcustom pipenv-shell-buffer-name
+  "*Pipenv shell*"
+  "The name of the Pipenv shell buffer."
+  :type 'string
+  :group 'pipenv)
+
+(defcustom pipenv-shell-buffer-init-command
+  "pipenv shell"
+  "The shell command to initialize the Pipenv shell."
   :type 'string
   :group 'pipenv)
 
@@ -104,7 +116,7 @@
   "Make a Pipenv process from COMMAND; optional custom FILTER or SENTINEL."
   (make-process
    :name pipenv-process-name
-   :buffer pipenv-buffer-name
+   :buffer pipenv-process-buffer-name
    :command command
    :coding 'utf-8-unix
    :filter filter
@@ -228,10 +240,12 @@ or (if none is given), installs all packages."
 (defun pipenv-shell ()
   "Spawn a shell within the virtualenv."
   (interactive)
-  (let ((name (generate-new-buffer-name (concat "*pipenv shell*"))))
+  (let ((name (generate-new-buffer-name pipenv-shell-buffer-name)))
     (pop-to-buffer name)
     (shell (current-buffer))
-    (process-send-string nil "pipenv shell\n")
+    (insert pipenv-shell-buffer-init-command)
+    (comint-send-input)
+    (sleep-for 1)
     (comint-clear-buffer)))
 
 (defun pipenv-uninstall(packages)
