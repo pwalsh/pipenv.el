@@ -205,9 +205,20 @@ or (if none is given), installs all packages."
 
 (defun pipenv-open (module)
   "View a given MODULE in your editor."
-  ;; TODO: implement open in lisp so files open in current Emacs session.
-  (interactive)
-  (pipenv--command (list "open" module)))
+  (interactive "sWhich Python module do you want to view? ")
+  (let* ((template "%s -c 'import %s; print(%s.__file__)'")
+         (replacements '(("pyo" . "py") ("pyc" . "py") ("pyd" . "py")))
+         (suffix "__init__.py")
+         (response (shell-command-to-string
+                    (format template python-shell-interpreter module module)))
+         (real-path (s-with response
+                      (s-chomp)
+                      (s-trim)
+                      (s-replace-all replacements)))
+         (ideal-path (if (s-contains? suffix real-path)
+                         (f-dirname real-path)
+                       real-path)))
+    (find-file ideal-path)))
 
 (defun pipenv-run (command)
   "Spawns a COMMAND installed into the virtualenv."
