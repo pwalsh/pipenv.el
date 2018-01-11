@@ -283,7 +283,7 @@ to latest compatible versions."
 (defun pipenv-projectile-hook-example ()
   "An example function for projectile integration, \
 with 'pipenv-shell' and 'run-python' integration."
-  (if (pipenv-project?)
+  (when (pipenv-project?)
       (progn
         (pipenv-set)
         (sleep-for 1)
