@@ -273,13 +273,13 @@ to latest compatible versions."
 
 (defalias 'pipenv-installed-p 'pipenv-installed?)
 
-(defun pipenv-set ()
+(defun pipenv-activate ()
   "Set the active Python version from Pipenv."
   (interactive)
   (pipenv-venv)
   (pipenv-py))
 
-(defun pipenv-unset ()
+(defun pipenv-deactivate ()
   "Unset the active Pipenv version from Pipenv; back to defaults."
   (interactive)
   (setq
@@ -291,7 +291,7 @@ to latest compatible versions."
 with 'pipenv-shell' and 'run-python' integration."
   (when (pipenv-project?)
       (progn
-        (pipenv-set)
+        (pipenv-activate)
         (sleep-for 1)
         (pipenv-shell)
         (run-python))))

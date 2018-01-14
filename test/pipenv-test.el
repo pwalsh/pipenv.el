@@ -31,7 +31,7 @@
 
   (cd existing-project)
 
-  (accept-process-output (pipenv-set) pipenv-accept-timeout)
+  (accept-process-output (pipenv-activate) pipenv-accept-timeout)
 
   (accept-process-output (pipenv-where) pipenv-accept-timeout)
   (should (s-ends-with? (f-filename existing-project) pipenv-process-response))
@@ -46,7 +46,7 @@
   (should (s-contains? (f-filename existing-project) python-shell-virtualenv-root))
   (should (s-contains? (f-filename existing-project) python-shell-interpreter))
 
-  (pipenv-unset)
+  (pipenv-deactivate)
 
   (should (s-equals? nil python-shell-virtualenv-path))
   (should (s-equals? nil python-shell-virtualenv-root))
@@ -64,7 +64,7 @@
   ;; so we need to sleep for long enough to let it finish.
   (sleep-for 3)
 
-  (accept-process-output (pipenv-set) pipenv-accept-timeout)
+  (accept-process-output (pipenv-activate) pipenv-accept-timeout)
 
   (accept-process-output (pipenv-where) pipenv-accept-timeout)
   (princ pipenv-process-response)
@@ -80,7 +80,7 @@
   (should (s-contains? (f-filename new-project) python-shell-virtualenv-root))
   (should (s-contains? (f-filename new-project) python-shell-interpreter))
 
-  (pipenv-unset)
+  (pipenv-deactivate)
 
   (should (s-equals? nil python-shell-virtualenv-path))
   (should (s-equals? nil python-shell-virtualenv-root))
