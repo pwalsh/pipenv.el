@@ -274,13 +274,13 @@ to latest compatible versions."
 (defalias 'pipenv-installed-p 'pipenv-installed?)
 
 (defun pipenv-activate ()
-  "Set the active Python version from Pipenv."
+  "Activate the Python version from Pipenv."
   (interactive)
   (pipenv-venv)
   (pipenv-py))
 
 (defun pipenv-deactivate ()
-  "Unset the active Pipenv version from Pipenv; back to defaults."
+  "Deactivate the Python version from Pipenv; back to defaults."
   (interactive)
   (setq
    python-shell-virtualenv-root nil
@@ -298,7 +298,7 @@ with 'pipenv-shell' and 'run-python' integration."
 
 ;;;###autoload
 (define-minor-mode pipenv-mode
-  ""
+  "Minor mode for Pipenv."
   :lighter " Pipenv"
   :keymap (let ((map (make-sparse-keymap)))
             (define-key map (kbd "M-p a") 'pipenv-activate)
@@ -310,7 +310,7 @@ with 'pipenv-shell' and 'run-python' integration."
             map))
 
 ;;;###autoload
-(add-hook 'python-mode-hook 'pipenv-mode)
+(add-hook 'python-mode-hook #'pipenv-mode)
 
 (provide 'pipenv)
 

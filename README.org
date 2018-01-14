@@ -5,6 +5,12 @@
 
 A [[https://docs.pipenv.org][Pipenv]] porcelain inside Emacs.
 
+** Overview
+
+[[https://docs.pipenv.org][Pipenv]] is now the officially recommended Python packaging tool. It manages virtual environments, adds and removes packages, and enables deterministic build dependencies. Even better, `Pipfile` and `Pipfile.lock` replace `requirements.txt` bringing modern dependency management features to your Python projects.
+
+pipenv.el makes Pipenv a first-class citizen in your Emacs-driven Python development workflow. You get interactive functions for all Pipenv commands, a minor mode with a key map for the most useful commands, and `pipenv-activate` / `pipenv-deactivate` functions for working with virtual environments.
+
 ** Integrations
 
 *** Projectile
