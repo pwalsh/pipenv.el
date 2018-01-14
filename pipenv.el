@@ -290,6 +290,22 @@ with 'pipenv-shell' and 'run-python' integration."
         (pipenv-shell)
         (run-python))))
 
+;;;###autoload
+(define-minor-mode pipenv-mode
+  ""
+  :lighter " Pipenv"
+  :keymap (let ((map (make-sparse-keymap)))
+            (define-key map (kbd "M-p a") 'pipenv-activate)
+            (define-key map (kbd "M-p d") 'pipenv-deactivate)
+            (define-key map (kbd "M-p s") 'pipenv-shell)
+            (define-key map (kbd "M-p o") 'pipenv-open)
+            (define-key map (kbd "M-p i") 'pipenv-install)
+            (define-key map (kbd "M-p u") 'pipenv-uninstall)
+            map))
+
+;;;###autoload
+(add-hook 'python-mode-hook 'pipenv-mode)
+
 (provide 'pipenv)
 
 ;;; pipenv.el ends here
