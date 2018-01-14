@@ -16,7 +16,7 @@ pipenv.el makes Pipenv a first-class citizen in your Emacs-driven Python develop
 *** Projectile
 
 #+BEGIN_SRC elisp
-(add-hook 'projectile-after-switch-project-hook #'pipenv-set)
+(add-hook 'projectile-after-switch-project-hook #'pipenv-activate)
 #+END_SRC
 
 #+BEGIN_SRC elisp
