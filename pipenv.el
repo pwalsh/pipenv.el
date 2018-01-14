@@ -267,6 +267,12 @@ to latest compatible versions."
 
 (defalias 'pipenv-project-p 'pipenv-project?)
 
+(defun pipenv-installed? ()
+  "Can the Pipenv executable found?"
+  pipenv-executable)
+
+(defalias 'pipenv-installed-p 'pipenv-installed?)
+
 (defun pipenv-set ()
   "Set the active Python version from Pipenv."
   (interactive)
