@@ -7,13 +7,56 @@ A [[https://docs.pipenv.org][Pipenv]] porcelain inside Emacs.
 
 ** Overview
 
-[[https://docs.pipenv.org][Pipenv]] is now the officially recommended Python packaging tool. It manages virtual environments, adds and removes packages, and enables deterministic build dependencies. Even better, =Pipfile= and =Pipfile.lock= replace =requirements.txt= bringing modern dependency management features to your Python projects.
+[[https://docs.pipenv.org][Pipenv]] is now the officially recommended Python packaging tool. It manages virtual environments, adds and removes packages, and enables deterministic build dependencies, has =Pipfile= to finally replace all other =requirements.txt= hacks. Yay for Pipenv.
 
-=pipenv.el= makes Pipenv a first-class citizen in your Emacs-driven Python development workflow. You get interactive functions for all Pipenv commands, a minor mode with a key map for the most useful commands, and =pipenv-activate= / =pipenv-deactivate= functions for working with virtual environments.
+=pipenv.el= makes Pipenv a first-class citizen in your Emacs-driven Python development workflow with a range of interactive commands wrapping the Pipenv, a minor mode to accompany =python-mode= with a keymap for the most useful commands, and a high-level =pipenv-activate= / =pipenv-deactivate= interface for virtual environment integration with your Emacs session.
 
-** Integrations
+** Contributing
 
-*** Projectile
+Contributions to documentation and code are welcome. [[https://github/com/pwalsh/pipenv.el/issues][Open an issue for discussion]], or submit a PR for consideration.
+
+** Installation
+
+*** Melpa
+
+=pipenv.el= is currently waiting review for inclusion on Melpa.
+
+*** Manual
+
+Download the code with [[https://github.com/pwalsh/pipenv.el.git][git]] or as a [[https://github.com/pwalsh/pipenv.el/archive/master.zip][zipped snapshot]], and then put =pipenv.el= on your Emacs load path.
+
+** Features
+
+*** Pipenv coverage
+
+=pipenv.el= wraps the majority of the Pipenv API. See all commands prefixed with =pipenv-= after installation (=M-x pipenv-=).
+
+**** =pipenv open=
+
+=pipenv.el= reimplements Pipenv's =open= command in Emacs Lisp as =pipenv-open=, rather than shelling out to Pipenv for the logic. This is a design decision, ensuring that modules are opened in the current Emacs session, rather than in =$EDITOR= as per the Python implementation of =pipenv open=.
+
+*** Activate and Deactivate
+
+In addition to providing the majority of Pipenv commands, there are several custom functions available in =pipenv.el=. The most useful are =pipenv-activate= and =pipenv-deactivate=, which are used to manage the Python virtual environment for the current Emacs session.
+
+=pipenv-activate= sets the variables  =python-shell interpreter= and =python-virtualenv-root= to those of the Pipenv project currently being visited, and =pipenv-deactivate= sets these variables back to their Emacs defaults.
+
+*** Minor mode
+
+The Pipenv minor mode is activated for buffers with a Python major mode. The minor mode exposes a number of key bindings for =pipenv.el= commands, prefixed by =M-p=. 
+
+- =M-p a= is bound to =pipenv-activate= 
+- =M-p d= is bound to =pipenv-deactivate= 
+- =M-p s= is bound to =pipenv-shell= 
+- =M-p o= is bound to =pipenv-open= 
+- =M-p i= is bound to =pipenv-install= 
+- =M-p u= is bound to =pipenv-uninstall= 
+
+*** Integrations
+
+**** Projectile
+
+It is useful to enable some Pipenv features when switching to a Projectile project. 
 
 #+BEGIN_SRC elisp
 (add-hook 'projectile-after-switch-project-hook #'pipenv-activate)
