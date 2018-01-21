@@ -56,7 +56,7 @@ The Pipenv minor mode is activated for buffers with a Python major mode. The min
 
 **** Flycheck
 
-Integration with Flycheck is enabled by default, if Flycheck is installed. The integration customises Flycheck's =flycheck-executale-find= function to search for binaries in an activate Pipenv virtual environment.
+Integration with Flycheck is enabled by default, if Flycheck is installed. The integration customises Flycheck's =flycheck-executable-find= function to search for executables in an activate Pipenv virtual environment.
 
 Disable Flycheck integration with:
 

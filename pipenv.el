@@ -409,12 +409,6 @@ and open a Pipenv shell and a Python interpreter."
 ;;;###autoload
 (add-hook 'python-mode-hook #'pipenv-mode)
 
-;;;;;###autoload
-;;(when pipenv-with-projectile
-;;  (add-hook
-;;   'projectile-after-switch-project-hook
-;;   pipenv-projectile-after-switch-function))
-
 (provide 'pipenv)
 
 ;;; pipenv.el ends here
