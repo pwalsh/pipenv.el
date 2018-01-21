@@ -118,7 +118,9 @@
           (goto-char (process-mark process))
           (insert response)
           (set-marker (process-mark process) (point)))
-        (if moving (goto-char (process-mark process)))))))
+        (if moving (goto-char (process-mark process))))
+      ;; Interpret ANSI escape sequences from Pipenv
+      (ansi-color-apply-on-region (point-min) (point-max)))))
 
 (defun pipenv--process-filter-message-insert (process response)
   "Filter for PROCESS, generate a message from RESPONSE."
