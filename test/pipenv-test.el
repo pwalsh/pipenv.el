@@ -31,7 +31,7 @@
 
   (cd existing-project)
 
-  (accept-process-output (pipenv-activate) pipenv-accept-timeout)
+  (pipenv-activate)
 
   (accept-process-output (pipenv-where) pipenv-accept-timeout)
   (should (s-ends-with? (f-filename existing-project) pipenv-process-response))
@@ -64,7 +64,7 @@
   ;; so we need to sleep for long enough to let it finish.
   (sleep-for 3)
 
-  (accept-process-output (pipenv-activate) pipenv-accept-timeout)
+  (pipenv-activate)
 
   (accept-process-output (pipenv-where) pipenv-accept-timeout)
   (princ pipenv-process-response)

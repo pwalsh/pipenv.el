@@ -35,6 +35,10 @@
   :prefix "pipenv-"
   :group 'python)
 
+;;
+;; User-facing customization.
+;;
+
 (defcustom pipenv-executable
   (executable-find "pipenv")
   "The Pipenv executable."
@@ -65,6 +69,33 @@
   "The shell command to initialize the Pipenv shell."
   :type 'string
   :group 'pipenv)
+
+(defcustom pipenv-with-flycheck
+  t
+  "Use the Pipenv virtual environment when searching for Flycheck executables."
+  :type 'boolean
+  :group 'pipenv)
+
+(defcustom pipenv-with-projectile
+  t
+  "Provide hooks for Projectile when a Pipenv project is detected."
+  :type 'boolean
+  :group 'pipenv)
+
+(defcustom pipenv-projectile-after-switch-function
+  #'pipenv-projectile-after-switch-default
+  "The function to add to projectile-after-switch-hook."
+  :type 'function
+  :group 'pipenv)
+
+;;
+;; Helper functions internal to the package.
+;;
+
+(defun pipenv--initialize ()
+  "Initialization steps to run when the pipenv package is required."
+  (when pipenv-with-projectile
+    (pipenv-activate-projectile)))
 
 (defun pipenv--clean-response (response)
   "Clean up RESPONSE from shell command."
@@ -127,6 +158,10 @@
   (let ((command (cons pipenv-executable args))
         (filter 'pipenv--process-filter))
     (pipenv--make-pipenv-process command filter)))
+
+;;
+;; Interactive commands that implement the Pipenv interface in Emacs.
+;;
 
 (defun pipenv-update ()
   "Update Pipenv and pip to latest."
@@ -259,6 +294,36 @@ to latest compatible versions."
   (interactive)
   (pipenv--command (list "update")))
 
+;;
+;; High-level interactive commands enabled by the Pipenv interface.
+;;
+
+(defun pipenv-activate ()
+  "Activate the Python version from Pipenv. Return nil if no project."
+  (interactive)
+  (if (pipenv-project?)
+      (progn
+        (accept-process-output (pipenv-venv) nil)
+        (accept-process-output (pipenv-py) nil)
+        (when (and (featurep 'flycheck) pipenv-with-flycheck)
+          (pipenv-activate-flycheck))
+        t)
+    nil))
+
+(defun pipenv-deactivate ()
+  "Deactivate the Python version from Pipenv; back to defaults."
+  (interactive)
+  (setq
+   python-shell-virtualenv-root nil
+   python-shell-interpreter "python")
+  (when (and (featurep 'flycheck) pipenv-with-flycheck)
+    (pipenv-deactivate-flycheck))
+  t)
+
+;;
+;; User-facing utility functions.
+;;
+
 (defun pipenv-project? ()
   "Are we in a Pipenv project?"
   (f-traverse-upwards
@@ -273,28 +338,58 @@ to latest compatible versions."
 
 (defalias 'pipenv-installed-p 'pipenv-installed?)
 
-(defun pipenv-activate ()
-  "Activate the Python version from Pipenv."
-  (interactive)
-  (pipenv-venv)
-  (pipenv-py))
+(defun pipenv-executable-find (executable)
+  "Find EXECUTABLE in the executable path of an activate virtual environment."
+  (when (bound-and-true-p python-shell-virtualenv-root)
+    (locate-file executable (python-shell-calculate-exec-path))))
 
-(defun pipenv-deactivate ()
-  "Deactivate the Python version from Pipenv; back to defaults."
-  (interactive)
-  (setq
-   python-shell-virtualenv-root nil
-   python-shell-interpreter "python"))
+;;
+;; Integration with 3rd party packages.
+;;
 
-(defun pipenv-projectile-hook-example ()
-  "An example function for projectile integration, \
-with 'pipenv-shell' and 'run-python' integration."
+(defun pipenv-activate-flycheck ()
+  "Activate integration of Pipenv with Flycheck."
+  (setq flycheck-executable-find #'pipenv-executable-find))
+
+(defun pipenv-deactivate-flycheck ()
+  "Deactivate integration of Pipenv with Flycheck."
+  (setq flycheck-executable-find #'executable-find))
+
+(defun pipenv-activate-projectile ()
+  "Activate integration of Pipenv with Projectile."
+  (add-hook
+   'projectile-after-switch-project-hook
+   (lambda () (funcall pipenv-projectile-after-switch-function))))
+
+(defun pipenv-projectile-after-switch-default ()
+  "When a Pipenv project is found, activate the virtual environment."
+  ;; Always clean up, in case we were in a Python project previously.
+  (pipenv-deactivate)
+  ;; Only activate if we can verify this is a Pipenv project.
   (when (pipenv-project?)
-      (progn
-        (pipenv-activate)
-        (sleep-for 1)
-        (pipenv-shell)
-        (run-python))))
+    (pipenv-activate)))
+
+(defun pipenv-projectile-after-switch-extended ()
+  "When a Pipenv project is found, activate the virtual environment, \
+and open a Pipenv shell and a Python interpreter."
+  ;; Always clean up, in case we were in a Python project previously.
+  (pipenv-deactivate)
+  ;; Only activate if we can verify this is a Pipenv project.
+  (when (pipenv-project?)
+    (progn
+      (pipenv-activate)
+      (pipenv-shell)
+      (run-python))))
+
+;;
+;; Initialization code.
+;;
+
+(pipenv--initialize)
+
+;;
+;; Core Emacs integration.
+;;
 
 ;;;###autoload
 (define-minor-mode pipenv-mode
@@ -311,6 +406,12 @@ with 'pipenv-shell' and 'run-python' integration."
 
 ;;;###autoload
 (add-hook 'python-mode-hook #'pipenv-mode)
+
+;;;;;###autoload
+;;(when pipenv-with-projectile
+;;  (add-hook
+;;   'projectile-after-switch-project-hook
+;;   pipenv-projectile-after-switch-function))
 
 (provide 'pipenv)
 

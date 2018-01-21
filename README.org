@@ -13,23 +13,23 @@ A [[https://docs.pipenv.org][Pipenv]] porcelain inside Emacs.
 
 ** Contributing
 
-Contributions to documentation and code are welcome. [[https://github/com/pwalsh/pipenv.el/issues][Open an issue for discussion]], or submit a PR for consideration.
+Contributions to documentation and code are welcome. [[https://github.com/pwalsh/pipenv.el/issues/new][Open an issue]] for discussion, or [[https://github.com/pwalsh/pipenv.el/compare][submit a PR]] for consideration.
 
 ** Installation
 
 *** Melpa
 
-=pipenv.el= is currently waiting review for inclusion on Melpa.
+=pipenv.el= is currently [[https://github.com/melpa/melpa/pull/5230][waiting review]] for inclusion on Melpa.
 
 *** Manual
 
-Download the code with [[https://github.com/pwalsh/pipenv.el.git][git]] or as a [[https://github.com/pwalsh/pipenv.el/archive/master.zip][zipped snapshot]], and then put =pipenv.el= on your Emacs load path.
+Download the code with [[https://github.com/pwalsh/pipenv.el.git][git]] or as a [[https://github.com/pwalsh/pipenv.el/archive/master.zip][zip]], and then put =pipenv.el= on your Emacs load path.
 
 ** Features
 
 *** Pipenv coverage
 
-=pipenv.el= wraps the majority of the Pipenv API. See all commands prefixed with =pipenv-= after installation (=M-x pipenv-=).
+=pipenv.el= wraps the majority of the Pipenv CLI. See all commands prefixed with =pipenv-= after installation (=M-x pipenv-=).
 
 **** =pipenv open=
 
@@ -54,15 +54,30 @@ The Pipenv minor mode is activated for buffers with a Python major mode. The min
 
 *** Integrations
 
-**** Projectile
+**** Flycheck
 
-It is useful to enable some Pipenv features when switching to a Projectile project. 
+Integration with Flycheck is enabled by default, if Flycheck is installed. The integration customises Flycheck's =flycheck-executale-find= function to search for binaries in an activate Pipenv virtual environment.
+
+Disable Flycheck integration with:
 
 #+BEGIN_SRC elisp
-(add-hook 'projectile-after-switch-project-hook #'pipenv-activate)
+(setq pipenv-with-flycheck nil)
 #+END_SRC
 
+**** Projectile
+
+Integration with Projectile is enabled by default, if Projectile is installed. The integration adds a hook to =projectile-after-switch-project-hook=, being =pipenv-projectile-after-switch-function=, which can be customized. 
+
+Disable Projectile integration with:
+
 #+BEGIN_SRC elisp
-;; Example function included that runs a Pipenv shell and a Python interpreter
-(add-hook 'projectile-after-switch-project-hook #'pipenv-projectile-hook-example)
+(setq pipenv-with-projectile nil)
+#+END_SRC
+
+The default value for =pipenv-projectile-after-switch-function= is the function =pipenv-projectile-after-switch-default=, which simply activates the Pipenv virtual environment, if a Pipenv project is detected. 
+
+You can set your own function to =pipenv-projectile-after-switch-function= to customise this behaviour. An example function for this is included, called =pipenv-projectile-after-switch-extended=, which, in addition to setting the virtual environment, opens a Pipenv shell, and opens a Python interpreter with =run-python=.
+
+#+BEGIN_SRC elisp
+(setq pipenv-projectile-after-switch-function #'pipenv-projectile-after-switch-extended)
 #+END_SRC
