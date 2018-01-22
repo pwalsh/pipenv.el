@@ -303,14 +303,12 @@ to latest compatible versions."
 (defun pipenv-activate ()
   "Activate the Python version from Pipenv. Return nil if no project."
   (interactive)
-  (if (pipenv-project?)
-      (progn
-        (accept-process-output (pipenv-venv) nil)
-        (accept-process-output (pipenv-py) nil)
-        (when (and (featurep 'flycheck) pipenv-with-flycheck)
-          (pipenv-activate-flycheck))
-        t)
-    nil))
+  (when (pipenv-project?)
+    (accept-process-output (pipenv-venv) nil)
+    (accept-process-output (pipenv-py) nil)
+    (when (and (featurep 'flycheck) pipenv-with-flycheck)
+      (pipenv-activate-flycheck))
+    t))
 
 (defun pipenv-deactivate ()
   "Deactivate the Python version from Pipenv; back to defaults."
