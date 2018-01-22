@@ -31,7 +31,7 @@
 (require 's)
 
 (defgroup pipenv nil
-  "A Pipenv porcelain inside Emacs."
+  "A Pipenv porcelain."
   :prefix "pipenv-"
   :group 'python)
 
