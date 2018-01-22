@@ -40,7 +40,7 @@
 ;;
 
 (defcustom pipenv-executable
-  (executable-find "pipenv")
+  "pipenv"
   "The Pipenv executable."
   :type '(file :must-match t)
   :safe #'file-directory-p
