@@ -282,7 +282,6 @@ or (if none is given), installs all packages."
     (shell (current-buffer))
     (insert pipenv-shell-buffer-init-command)
     (comint-send-input)
-    (sleep-for 1)
     (comint-clear-buffer)))
 
 (defun pipenv-uninstall(packages)
