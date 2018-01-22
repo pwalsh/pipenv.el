@@ -326,9 +326,7 @@ to latest compatible versions."
 
 (defun pipenv-project? ()
   "Are we in a Pipenv project?"
-  (f-traverse-upwards
-   (lambda (path) (f-exists? (f-expand "Pipfile" path)))
-   "."))
+  (locate-dominating-file default-directory "Pipfile"))
 
 (defalias 'pipenv-project-p 'pipenv-project?)
 
