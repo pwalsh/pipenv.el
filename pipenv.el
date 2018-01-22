@@ -401,9 +401,6 @@ and open a Pipenv shell and a Python interpreter."
             (define-key map (kbd "M-p u") 'pipenv-uninstall)
             map))
 
-;;;###autoload
-(add-hook 'python-mode-hook #'pipenv-mode)
-
 (provide 'pipenv)
 
 ;;; pipenv.el ends here

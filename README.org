@@ -25,6 +25,22 @@ Contributions to documentation and code are welcome. [[https://github.com/pwalsh
 
 Download the code with [[https://github.com/pwalsh/pipenv.el.git][git]] or as a [[https://github.com/pwalsh/pipenv.el/archive/master.zip][zip]], and then put =pipenv.el= on your Emacs load path.
 
+** Configuration
+
+Once installed, all Pipenv commands are available to be called interactively, and are prefixed with =pipenv-=. To add the minor mode for buffers with a Python major mode, use =(add-hook 'python-mode-hook #'pipenv-mode)=. Here is an example of configuration with =use-package=.
+
+#+BEGIN_SRC elisp
+(use-package pipenv
+  :ensure nil
+  :load-path "<PATH TO INSTALLATION>" ;; for manual installs only.
+  :init
+  (setq
+   pipenv-projectile-after-switch-function
+   #'pipenv-projectile-after-switch-extended)
+  :config
+  (add-hook 'python-mode-hook #'pipenv-mode))
+#+END_SRC
+
 ** Features
 
 *** Pipenv coverage
