@@ -5,7 +5,7 @@
 ;; Author: Paul Walsh <paulywalsh@gmail.com>
 ;; URL: https://github.com/pwalsh/pipenv.el
 ;; Version: 0.0.1-alpha
-;; Package-Requires: ((emacs "25")(f "0.19.0")(s "1.12.0"))
+;; Package-Requires: ((emacs "25.1")(f "0.19.0")(s "1.12.0"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@
 (require 'f)
 (require 'python)
 (require 's)
+(require 'subr-x)
 
 (defgroup pipenv nil
   "A Pipenv porcelain."
@@ -128,14 +129,10 @@
 
 (defun pipenv--process-filter-variable-insert(process response)
   "Filter for PROCESS, which sets several global variables based on RESPONSE."
-  (cond ((and
-          (s-equals? (nth 0 (last (process-command process))) "--py")
-          (f-file? response))
-        (setq python-shell-interpreter response))
-        ((and
-          (s-equals? (nth 0 (last (process-command process))) "--venv")
-          (f-directory? response))
-         (setq python-shell-virtualenv-root response)))
+  (when (and
+         (s-equals? (nth 0 (last (process-command process))) "--venv")
+         (f-directory? response))
+    (setq python-shell-virtualenv-root response))
   (setq pipenv-process-response response))
 
 (defun pipenv--process-filter (process response)
@@ -144,6 +141,23 @@
     (pipenv--process-filter-variable-insert process clean-response)
     (pipenv--process-filter-message-insert process clean-response)
     (pipenv--process-filter-buffer-insert process clean-response)))
+
+(defun pipenv--get-executable-dir ()
+  "Get the directory of executables in an active virtual environment, or nil."
+  (when python-shell-virtualenv-root
+    (concat
+     (file-name-as-directory python-shell-virtualenv-root)
+     (if (eq system-type 'windows-nt) "Scripts" "bin"))))
+
+(defun pipenv--push-venv-executables-to-exec-path ()
+  "Push the directory of executables in an active virtual environment to PATH."
+  (when-let ((venv-executables (pipenv--get-executable-dir)))
+    (push venv-executables exec-path)))
+
+(defun pipenv--pull-venv-executables-from-exec-path ()
+  "Pull the directory of executables in an active virtual environment from PATH."
+  (when-let ((venv-executables (pipenv--get-executable-dir)))
+    (setq exec-path (delete venv-executables exec-path))))
 
 (defun pipenv--make-pipenv-process (command &optional filter sentinel)
   "Make a Pipenv process from COMMAND; optional custom FILTER or SENTINEL."
@@ -304,7 +318,7 @@ to latest compatible versions."
   (interactive)
   (when (pipenv-project?)
     (accept-process-output (pipenv-venv) nil)
-    (accept-process-output (pipenv-py) nil)
+    (pipenv--push-venv-executables-to-exec-path)
     (when (and (featurep 'flycheck) pipenv-with-flycheck)
       (pipenv-activate-flycheck))
     t))
@@ -312,9 +326,8 @@ to latest compatible versions."
 (defun pipenv-deactivate ()
   "Deactivate the Python version from Pipenv; back to defaults."
   (interactive)
-  (setq
-   python-shell-virtualenv-root nil
-   python-shell-interpreter "python")
+  (pipenv--pull-venv-executables-from-exec-path)
+  (setq python-shell-virtualenv-root nil)
   (when (and (featurep 'flycheck) pipenv-with-flycheck)
     (pipenv-deactivate-flycheck))
   t)

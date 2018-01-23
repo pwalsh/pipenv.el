@@ -39,12 +39,8 @@
   (accept-process-output (pipenv-venv) pipenv-accept-timeout)
   (should (s-contains? (f-filename existing-project) pipenv-process-response))
 
-  (accept-process-output (pipenv-py) pipenv-accept-timeout)
-  (should (s-contains? (f-filename existing-project) pipenv-process-response))
-
   (should (s-contains? (f-filename existing-project) python-shell-virtualenv-path))
   (should (s-contains? (f-filename existing-project) python-shell-virtualenv-root))
-  (should (s-contains? (f-filename existing-project) python-shell-interpreter))
 
   (pipenv-deactivate)
 
@@ -67,18 +63,13 @@
   (pipenv-activate)
 
   (accept-process-output (pipenv-where) pipenv-accept-timeout)
-  (princ pipenv-process-response)
   (should (s-ends-with? (f-filename new-project) pipenv-process-response))
 
   (accept-process-output (pipenv-venv) pipenv-accept-timeout)
   (should (s-contains? (f-filename new-project) pipenv-process-response))
 
-  (accept-process-output (pipenv-py) pipenv-accept-timeout)
-  (should (s-contains? (f-filename new-project) pipenv-process-response))
-
   (should (s-contains? (f-filename new-project) python-shell-virtualenv-path))
   (should (s-contains? (f-filename new-project) python-shell-virtualenv-root))
-  (should (s-contains? (f-filename new-project) python-shell-interpreter))
 
   (pipenv-deactivate)
 
