@@ -393,12 +393,12 @@ and open a Pipenv shell and a Python interpreter."
   "Minor mode for Pipenv."
   :lighter " Pipenv"
   :keymap (let ((map (make-sparse-keymap)))
-            (define-key map (kbd "M-p a") 'pipenv-activate)
-            (define-key map (kbd "M-p d") 'pipenv-deactivate)
-            (define-key map (kbd "M-p s") 'pipenv-shell)
-            (define-key map (kbd "M-p o") 'pipenv-open)
-            (define-key map (kbd "M-p i") 'pipenv-install)
-            (define-key map (kbd "M-p u") 'pipenv-uninstall)
+            (define-key map (kbd "C-c C-p a") 'pipenv-activate)
+            (define-key map (kbd "C-c C-p d") 'pipenv-deactivate)
+            (define-key map (kbd "C-c C-p s") 'pipenv-shell)
+            (define-key map (kbd "C-c C-p o") 'pipenv-open)
+            (define-key map (kbd "C-c C-p i") 'pipenv-install)
+            (define-key map (kbd "C-c C-p u") 'pipenv-uninstall)
             map))
 
 (provide 'pipenv)
