@@ -61,12 +61,12 @@ In addition to providing the majority of Pipenv commands, there are several cust
 
 The Pipenv minor mode is activated for buffers with a Python major mode. The minor mode exposes a number of key bindings for =pipenv.el= commands, prefixed by =M-p=. 
 
-- =M-p a= is bound to =pipenv-activate= 
-- =M-p d= is bound to =pipenv-deactivate= 
-- =M-p s= is bound to =pipenv-shell= 
-- =M-p o= is bound to =pipenv-open= 
-- =M-p i= is bound to =pipenv-install= 
-- =M-p u= is bound to =pipenv-uninstall= 
+- =C-c C-p a= is bound to =pipenv-activate=
+- =C-c C-p d= is bound to =pipenv-deactivate=
+- =C-c C-p s= is bound to =pipenv-shell=
+- =C-c C-p o= is bound to =pipenv-open=
+- =C-c C-p i= is bound to =pipenv-install=
+- =C-c C-p u= is bound to =pipenv-uninstall=
 
 *** Integrations
 
