@@ -3,6 +3,9 @@
 #+ATTR_HTML: :alt CircleCI image :title CircleCI
 [[https://circleci.com/gh/pwalsh/pipenv.el][https://circleci.com/gh/pwalsh/pipenv.el.svg?style=svg]]
 
+[[https://melpa.org/#/pipenv][file:https://melpa.org/packages/pipenv-badge.svg]]
+
+
 A [[https://docs.pipenv.org][Pipenv]] porcelain inside Emacs.
 
 ** Overview
@@ -19,7 +22,7 @@ Contributions to documentation and code are welcome. [[https://github.com/pwalsh
 
 *** Melpa
 
-=pipenv.el= is currently [[https://github.com/melpa/melpa/pull/5230][waiting review]] for inclusion on Melpa.
+=pipenv.el= is available on [[https://melpa.org/#/pipenv][Melpa]].
 
 *** Manual
 
@@ -27,18 +30,17 @@ Download the code with [[https://github.com/pwalsh/pipenv.el.git][git]] or as a 
 
 ** Configuration
 
-Once installed, all Pipenv commands are available to be called interactively, and are prefixed with =pipenv-=. To add the minor mode for buffers with a Python major mode, use =(add-hook 'python-mode-hook #'pipenv-mode)=. Here is an example of configuration with =use-package=.
+Once installed, all Pipenv commands are available to be called interactively, and are prefixed with =pipenv-=. To add the minor mode for buffers with a Python major mode, use =(add-hook 'python-mode-hook #'pipenv-mode)=.
+
+Here is an example of configuration with =use-package=.
 
 #+BEGIN_SRC elisp
 (use-package pipenv
-  :ensure nil
-  :load-path "<PATH TO INSTALLATION>" ;; for manual installs only.
+  :hook (python-mode . pipenv-mode)
   :init
   (setq
    pipenv-projectile-after-switch-function
-   #'pipenv-projectile-after-switch-extended)
-  :config
-  (add-hook 'python-mode-hook #'pipenv-mode))
+   #'pipenv-projectile-after-switch-extended))
 #+END_SRC
 
 ** Features
