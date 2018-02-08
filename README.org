@@ -57,7 +57,7 @@ Here is an example of configuration with =use-package=.
 
 In addition to providing the majority of Pipenv commands, there are several custom functions available in =pipenv.el=. The most useful are =pipenv-activate= and =pipenv-deactivate=, which are used to manage the Python virtual environment for the current Emacs session.
 
-=pipenv-activate= sets the variables  =python-shell-interpreter= and =python-shell-virtualenv-root= to those of the Pipenv project currently being visited, and =pipenv-deactivate= sets these variables back to their Emacs defaults.
+=pipenv-activate= sets the variable =python-shell-virtualenv-root= to that of the Pipenv project currently being visited, and =pipenv-deactivate= sets it back to the Emacs default.
 
 *** Minor mode
 
