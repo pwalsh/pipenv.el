@@ -3,9 +3,12 @@ jobs:
   build:
     working_directory: ~/repo
     docker:
-      - image: pwalsh/emacs:0.0.2
+      - image: pwalsh/builder:0.0.2
     steps:
       - checkout
+      - run:
+          name: Update pipenv
+          command: pip install --upgrade pip pipenv &&  pip3 install --upgrade pip pipenv
       - run:
           name: Create a test project
           command: mkdir existing-project && cd existing-project && pipenv --python 2 && cd ../
