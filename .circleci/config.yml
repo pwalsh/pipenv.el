@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/repo
     docker:
-      - image: pwalsh/builder:0.0.2
+      - image: pwalsh/builder:0.0.3
     steps:
       - checkout
       - run:
