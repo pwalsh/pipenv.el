@@ -24,6 +24,10 @@ Contributions to documentation and code are welcome. [[https://github.com/pwalsh
 
 =pipenv.el= is available on [[https://melpa.org/#/pipenv][Melpa]].
 
+*** Spacemacs
+
+=pipenv.el= integration in the [[http://spacemacs.org/layers/+lang/python/README.html][Python layer]] is currently [[https://github.com/syl20bnr/spacemacs/pull/10308][up for review]].
+
 *** Manual
 
 Download the code with [[https://github.com/pwalsh/pipenv.el.git][git]] or as a [[https://github.com/pwalsh/pipenv.el/archive/master.zip][zip]], and then put =pipenv.el= on your Emacs load path.
