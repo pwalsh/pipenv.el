@@ -110,13 +110,8 @@
 
 (defun pipenv--force-wait (process)
   "Block until PROCESS exits successfully."
-  (let ((sentinel-event nil))
-    (set-process-sentinel
-     process
-     (lambda (process message)
-       (setq sentinel-event t)))
-    (while (not sentinel-event)
-      (sit-for 0.1 t))))
+  (while (process-live-p process)
+    (sit-for 0.1 t)))
 
 (defun pipenv--process-filter-buffer-insert (process response)
   "Filter for PROCESS, insert RESPONSE in process buffer."
