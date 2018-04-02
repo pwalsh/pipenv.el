@@ -275,12 +275,11 @@ or (if none is given), installs all packages."
 (defun pipenv-open (module)
   "View a given MODULE in your editor."
   (interactive "sWhich Python module do you want to view? ")
-  (let* ((template "%s -c 'import %s; print(%s.__file__)'")
+  (let* ((template "import %s as mod; print(mod.__file__)")
          (replacements '(("pyo" . "py") ("pyc" . "py") ("pyd" . "py")))
          (suffix "__init__.py")
-         (python-path (executable-find python-shell-interpreter))
-         (response (shell-command-to-string
-                    (format template python-path module module)))
+         (response (pipenv--check-output
+                    python-shell-interpreter "-c" (format template module)))
          (real-path (s-with response
                       (s-chomp)
                       (s-trim)
@@ -289,6 +288,21 @@ or (if none is given), installs all packages."
                          (f-dirname real-path)
                        real-path)))
     (find-file ideal-path)))
+
+(defun pipenv--messaging-sentinel (process event)
+  "Send EVENT notifications for PROCESS to *Messages* buffer."
+  (message "Process %s: event %S" process (s-chomp event)))
+
+(defun pipenv--check-output (&rest command)
+  "Run COMMAND and return its standard output.
+
+A poor-man's equivalent of subprocess.check_output in Python."
+  (with-temp-buffer
+    (let* ((pipenv-process-name (concat "pipenv-check-output-" (car command)))
+           (pipenv-process-buffer-name (buffer-name))
+           (proc (pipenv--make-pipenv-process command nil 'pipenv--messaging-sentinel)))
+      (pipenv--force-wait proc)
+      (s-trim (buffer-string)))))
 
 (defun pipenv-run (command)
   "Spawns a COMMAND installed into the virtualenv."
