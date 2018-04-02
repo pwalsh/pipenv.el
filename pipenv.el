@@ -66,7 +66,7 @@
   :group 'pipenv)
 
 (defcustom pipenv-shell-buffer-init-command
-  "pipenv shell"
+  "exec pipenv shell"
   "The shell command to initialize the Pipenv shell."
   :type 'string
   :group 'pipenv)
