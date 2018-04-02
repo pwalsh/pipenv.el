@@ -278,8 +278,9 @@ or (if none is given), installs all packages."
   (let* ((template "%s -c 'import %s; print(%s.__file__)'")
          (replacements '(("pyo" . "py") ("pyc" . "py") ("pyd" . "py")))
          (suffix "__init__.py")
+         (python-path (executable-find python-shell-interpreter))
          (response (shell-command-to-string
-                    (format template python-shell-interpreter module module)))
+                    (format template python-path module module)))
          (real-path (s-with response
                       (s-chomp)
                       (s-trim)
