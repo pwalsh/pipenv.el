@@ -321,6 +321,7 @@ A poor-man's equivalent of subprocess.check_output in Python."
     (pop-to-buffer name)
     (shell (current-buffer))
     (insert pipenv-shell-buffer-init-command)
+    (setq-local comint-process-echoes t)
     (comint-send-input)
     (comint-clear-buffer)))
 
