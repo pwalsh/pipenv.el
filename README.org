@@ -26,7 +26,7 @@ Contributions to documentation and code are welcome. [[https://github.com/pwalsh
 
 *** Spacemacs
 
-=pipenv.el= integration in the [[http://spacemacs.org/layers/+lang/python/README.html][Python layer]] is currently [[https://github.com/syl20bnr/spacemacs/pull/10308][up for review]].
+=pipenv.el= [[https://github.com/syl20bnr/spacemacs/pull/10308][has been integrated]] in the [[http://spacemacs.org/layers/+lang/python/README.html][Python layer]].
 
 *** Manual
 
