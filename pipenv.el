@@ -344,10 +344,12 @@ to latest compatible versions."
   "Activate the Python version from Pipenv. Return nil if no project."
   (interactive)
   (when (pipenv-project?)
-    (pipenv--force-wait (pipenv-venv))
-    (pipenv--push-venv-executables-to-exec-path)
-    (when (and (featurep 'flycheck) pipenv-with-flycheck)
-      (pipenv-activate-flycheck))
+    (let ((pipenv-venv-proc (pipenv-venv)))
+      (set-process-sentinel pipenv-venv-proc
+                            (lambda (proc event)
+                              (pipenv--push-venv-executables-to-exec-path)
+                              (when (and (featurep 'flycheck) pipenv-with-flycheck)
+                                (pipenv-activate-flycheck)))))
     t))
 
 (defun pipenv-deactivate ()
