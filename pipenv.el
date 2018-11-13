@@ -163,12 +163,18 @@
 (defun pipenv--push-venv-executables-to-exec-path ()
   "Push the directory of executables in an active virtual environment to PATH."
   (when-let ((venv-executables (pipenv--get-executables-dir)))
-    (push venv-executables exec-path)))
+    (push venv-executables exec-path)
+    (let* ((path (s-split path-separator (getenv "PATH")))
+           (path-with-venv (cons venv-executables path)))
+      (setenv "PATH" (s-join path-separator path-with-venv)))))
 
 (defun pipenv--pull-venv-executables-from-exec-path ()
   "Pull the directory of executables in an active virtual environment from PATH."
   (when-let ((venv-executables (pipenv--get-executables-dir)))
-    (setq exec-path (delete venv-executables exec-path))))
+    (setq exec-path (delete venv-executables exec-path))
+    (let* ((path (s-split path-separator (getenv "PATH")))
+           (path-no-venv (delete venv-executables path)))
+      (setenv "PATH" (s-join path-separator path-no-venv)))))
 
 (defun pipenv--make-pipenv-process (command &optional filter sentinel)
   "Make a Pipenv process from COMMAND; optional custom FILTER or SENTINEL."
