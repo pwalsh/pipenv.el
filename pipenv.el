@@ -105,7 +105,7 @@
 
 (defun pipenv--clean-response (response)
   "Clean up RESPONSE from shell command."
-  (s-chomp response))
+  (nth 0 (s-split "," (replace-regexp-in-string "[^[:print:]]" "," response))))
 
 (defun pipenv--force-list (argument)
   "Force ARGUMENT to a list."
