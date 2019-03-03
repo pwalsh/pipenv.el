@@ -178,7 +178,10 @@
    :command command
    :coding 'utf-8-unix
    :filter filter
-   :sentinel sentinel))
+   :sentinel sentinel
+   :connection-type 'pipe
+  )
+)
 
 (defun pipenv--command (args)
   "Call Pipenv with ARGS and the default filter stack."
