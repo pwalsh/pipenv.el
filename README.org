@@ -6,12 +6,12 @@
 [[https://melpa.org/#/pipenv][file:https://melpa.org/packages/pipenv-badge.svg]]
 
 
-A [[https://docs.pipenv.org][Pipenv]] porcelain inside Emacs.
+A [[https://pipenv.readthedocs.io/en/latest/][Pipenv]] porcelain inside Emacs.
 
 ** Overview
 
-[[https://docs.pipenv.org][Pipenv]] is now the officially recommended Python packaging tool. It manages virtual environments, adds and removes packages, and enables deterministic build dependencies, has =Pipfile= to finally replace all other =requirements.txt= hacks. Yay for Pipenv.
 
+[[https://pipenv.readthedocs.io/en/latest/][Pipenv]] is a tool that aims to bring the best of all packaging worlds to the Python world. It manages virtual environments, adds and removes packages, and enables deterministic build dependencies.
 =pipenv.el= makes Pipenv a first-class citizen in your Emacs-driven Python development workflow with a range of interactive commands wrapping the Pipenv, a minor mode to accompany =python-mode= with a keymap for the most useful commands, and a high-level =pipenv-activate= / =pipenv-deactivate= interface for virtual environment integration with your Emacs session.
 
 ** Contributing
