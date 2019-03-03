@@ -387,13 +387,26 @@ to latest compatible versions."
 ;; Integration with 3rd party packages.
 ;;
 
+(defun pipenv-verify-python-checkers ()
+  "Manually verify checkers for python-mode"
+  (setq checkers (flycheck-defined-checkers 'modes))
+  (while checkers
+    (setq checker (car checkers))
+    (when (memq 'python-mode (flycheck-checker-get checker 'modes))
+      (setq flycheck-disabled-checkers (remq checker flycheck-disabled-checkers))
+      (setq flycheck-enabled-checkers (remq checker flycheck-enabled-checkers))
+      (flycheck-may-use-checker checker))
+    (setq checkers (cdr checkers))))
+
 (defun pipenv-activate-flycheck ()
   "Activate integration of Pipenv with Flycheck."
-  (setq flycheck-executable-find #'pipenv-executable-find))
+  (setq flycheck-executable-find #'pipenv-executable-find)
+  (pipenv-verify-python-checkers))
 
 (defun pipenv-deactivate-flycheck ()
   "Deactivate integration of Pipenv with Flycheck."
-  (setq flycheck-executable-find #'executable-find))
+  (setq flycheck-executable-find #'flycheck-default-executable-find)
+  (pipenv-verify-python-checkers))
 
 (defun pipenv-activate-projectile ()
   "Activate integration of Pipenv with Projectile."

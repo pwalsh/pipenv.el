@@ -3,6 +3,7 @@
 (require 'ert)
 (require 'f)
 (require 's)
+(require 'flycheck)
 
 (load (f-expand "pipenv.el" default-directory))
 
@@ -141,3 +142,16 @@
   (should (s-equals? "python" python-shell-interpreter))
   (let ((venv-executables (pipenv--get-executables-dir)))
     (should (not (member venv-executables exec-path)))))
+
+(ert-deftest flycheck-integration ()
+  (cd existing-project)
+  (pipenv--force-wait (pipenv-install "flake8"))
+  (find-file "some.py")
+  (flycheck-mode)
+  (should-not (flycheck-may-use-checker 'python-flake8))
+  (pipenv-activate)
+  (should-not (flycheck-disabled-checker-p 'python-flake8))
+  (pipenv-deactivate)
+  (should (flycheck-disabled-checker-p 'python-flake8))
+  (pipenv--force-wait (pipenv-uninstall "flake8"))
+)
