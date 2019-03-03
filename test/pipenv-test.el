@@ -54,10 +54,10 @@
   (should (s-contains? "No Pipfile present at project home" pipenv-process-response))
 
   (pipenv--force-wait (pipenv-venv))
-  (should (s-contains? "No virtualenv has been created" pipenv-process-response))
+  (should (s-contains? "Aborted!" pipenv-process-response))
 
   (pipenv--force-wait (pipenv-py))
-  (should (s-contains? "No project found" pipenv-process-response))
+  (should (s-contains? "location not created nor specified" pipenv-process-response))
 
   (should (eq nil python-shell-virtualenv-path))
   (should (eq nil python-shell-virtualenv-root))
