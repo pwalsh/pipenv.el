@@ -12,6 +12,7 @@ A [[https://pipenv.readthedocs.io/en/latest/][Pipenv]] porcelain inside Emacs.
 
 
 [[https://pipenv.readthedocs.io/en/latest/][Pipenv]] is a tool that aims to bring the best of all packaging worlds to the Python world. It manages virtual environments, adds and removes packages, and enables deterministic build dependencies.
+
 =pipenv.el= makes Pipenv a first-class citizen in your Emacs-driven Python development workflow with a range of interactive commands wrapping the Pipenv, a minor mode to accompany =python-mode= with a keymap for the most useful commands, and a high-level =pipenv-activate= / =pipenv-deactivate= interface for virtual environment integration with your Emacs session.
 
 ** Contributing
@@ -61,7 +62,7 @@ Here is an example of configuration with =use-package=.
 
 In addition to providing the majority of Pipenv commands, there are several custom functions available in =pipenv.el=. The most useful are =pipenv-activate= and =pipenv-deactivate=, which are used to manage the Python virtual environment for the current Emacs session.
 
-=pipenv-activate= sets the variable =python-shell-virtualenv-root= to that of the Pipenv project currently being visited, and =pipenv-deactivate= sets it back to the Emacs default.
+=pipenv-activate= calls =pyvenv-activate= and sets the variable =python-shell-virtualenv-root= to that of the Pipenv project currently being visited, and =pipenv-deactivate= sets it back to the Emacs default and also calls =pyvenv-deactivate=.
 
 *** Minor mode
 
@@ -103,3 +104,6 @@ You can set your own function to =pipenv-projectile-after-switch-function= to cu
 #+BEGIN_SRC elisp
 (setq pipenv-projectile-after-switch-function #'pipenv-projectile-after-switch-extended)
 #+END_SRC
+**** Pyvenv
+
+=pipenv.el= relies on [[https://stable.melpa.org/#/pyvenv/][pyvenv]] to switch between different virtual environments (=pipenv-activate= and =pipenv-deactivate=).
