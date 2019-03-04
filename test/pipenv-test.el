@@ -29,24 +29,6 @@
     (should (equal (pipenv--get-executables-dir)
                    (concat default-directory "bin")))))
 
-(ert-deftest test-pipenv--push-venv-executables-to-exec-path ()
-  (let ((python-shell-virtualenv-root nil))
-    (pipenv--push-venv-executables-to-exec-path)
-    (should (eq (member nil exec-path) nil)))
-  (let ((python-shell-virtualenv-root "/directory/that/does/not/exist"))
-    (pipenv--push-venv-executables-to-exec-path)
-    (should (eq (member "/directory/that/does/not/exist/bin" exec-path) nil)))
-  (let ((python-shell-virtualenv-root default-directory))
-    (pipenv--push-venv-executables-to-exec-path)
-    (should (member (concat default-directory "bin") exec-path))))
-
-(ert-deftest test-pipenv--pull-venv-executables-from-exec-path ()
-  (let ((python-shell-virtualenv-root default-directory))
-    (pipenv--push-venv-executables-to-exec-path)
-    (should (member (concat default-directory "bin") exec-path))
-    (pipenv--pull-venv-executables-from-exec-path)
-    (should (not (member (concat default-directory "bin") exec-path)))))
-
 (ert-deftest pipenv-with-no-active-project ()
   "Basic behavior when we do not have an active project."
   (should (not (pipenv-project?)))
@@ -64,6 +46,10 @@
   (should (eq nil python-shell-virtualenv-root))
   (should (s-equals? "python" python-shell-interpreter)))
 
+(defun python-from-venv? (folder)
+  (setq which-python (shell-command-to-string "which python"))
+  (s-contains? (f-filename folder) which-python))
+
 (ert-deftest pipenv-behavior-with-new-project ()
 
   (f-mkdir new-project)
@@ -74,8 +60,10 @@
   (pipenv--force-wait (pipenv-python "2"))
 
   (should (pipenv-project?))
+  (should-not (python-from-venv? new-project))
 
   (pipenv-activate)
+  (should (python-from-venv? new-project))
 
   (pipenv--force-wait (pipenv-where))
   (should (s-ends-with? (f-filename new-project) pipenv-process-response))
@@ -98,6 +86,7 @@
     (should (not (s-contains? "ipython" (f-read-text "Pipfile" 'utf-8)))))
 
   (pipenv-deactivate)
+  (should-not (python-from-venv? new-project))
 
   (should (eq nil python-shell-virtualenv-path))
   (should (eq nil python-shell-virtualenv-root))
@@ -112,8 +101,10 @@
   (cd existing-project)
 
   (should (pipenv-project?))
-
+  (should-not (python-from-venv? existing-project))
+  
   (pipenv-activate)
+  (should (python-from-venv? existing-project))
 
   (pipenv--force-wait (pipenv-where))
   (should (s-ends-with? (f-filename existing-project) pipenv-process-response))
@@ -136,6 +127,7 @@
     (should (not (s-contains? "ipython" (f-read-text "Pipfile" 'utf-8)))))
 
   (pipenv-deactivate)
+  (should-not (python-from-venv? existing-project))
 
   (should (eq nil python-shell-virtualenv-path))
   (should (eq nil python-shell-virtualenv-root))

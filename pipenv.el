@@ -30,6 +30,7 @@
 (require 'python)
 (require 's)
 (require 'subr-x)
+(require 'pyvenv)
 
 (defgroup pipenv nil
   "A Pipenv porcelain."
@@ -159,16 +160,6 @@
     (concat
      (file-name-as-directory python-shell-virtualenv-root)
      (if (eq system-type 'windows-nt) "Scripts" "bin"))))
-
-(defun pipenv--push-venv-executables-to-exec-path ()
-  "Push the directory of executables in an active virtual environment to PATH."
-  (when-let ((venv-executables (pipenv--get-executables-dir)))
-    (push venv-executables exec-path)))
-
-(defun pipenv--pull-venv-executables-from-exec-path ()
-  "Pull the directory of executables in an active virtual environment from PATH."
-  (when-let ((venv-executables (pipenv--get-executables-dir)))
-    (setq exec-path (delete venv-executables exec-path))))
 
 (defun pipenv--make-pipenv-process (command &optional filter sentinel)
   "Make a Pipenv process from COMMAND; optional custom FILTER or SENTINEL."
@@ -348,7 +339,7 @@ to latest compatible versions."
   (interactive)
   (when (pipenv-project?)
     (pipenv--force-wait (pipenv-venv))
-    (pipenv--push-venv-executables-to-exec-path)
+    (pyvenv-activate (directory-file-name python-shell-virtualenv-root))
     (when (and (featurep 'flycheck) pipenv-with-flycheck)
       (pipenv-activate-flycheck))
     t))
@@ -356,7 +347,7 @@ to latest compatible versions."
 (defun pipenv-deactivate ()
   "Deactivate the Python version from Pipenv; back to defaults."
   (interactive)
-  (pipenv--pull-venv-executables-from-exec-path)
+  (pyvenv-deactivate)
   (setq python-shell-virtualenv-root nil)
   (when (and (featurep 'flycheck) pipenv-with-flycheck)
     (pipenv-deactivate-flycheck))

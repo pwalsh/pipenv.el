@@ -5,6 +5,7 @@
 
 (depends-on "s" "1.12.0")
 (depends-on "f" "0.19.0")
+(depends-on "pyvenv" "1.20.0")
 
 (development
  (depends-on "ert-runner")
