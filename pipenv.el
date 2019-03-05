@@ -5,7 +5,7 @@
 ;; Author: Paul Walsh <paulywalsh@gmail.com>
 ;; URL: https://github.com/pwalsh/pipenv.el
 ;; Version: 0.0.1-beta
-;; Package-Requires: ((emacs "25.1")(f "0.19.0")(s "1.12.0"))
+;; Package-Requires: ((emacs "25.1")(f "0.19.0")(s "1.12.0")(pyvenv "1.20"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
