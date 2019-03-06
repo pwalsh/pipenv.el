@@ -134,10 +134,6 @@
       ;; Interpret ANSI escape sequences from Pipenv
       (ansi-color-apply-on-region (point-min) (point-max)))))
 
-(defun pipenv--process-filter-message-insert (process response)
-  "Filter for PROCESS, generate a message from RESPONSE."
-  (message (concat "Finished " (s-join " " (process-command process)))))
-
 (defun pipenv--process-filter-variable-insert(process response)
   "Filter for PROCESS, which sets several global variables based on RESPONSE."
   (when (and
@@ -150,7 +146,6 @@
   "Pipenv default filter stack PROCESS and RESPONSE handling."
   (let ((clean-response (pipenv--clean-response response)))
     (pipenv--process-filter-variable-insert process clean-response)
-    (pipenv--process-filter-message-insert process clean-response)
     (pipenv--process-filter-buffer-insert process clean-response)))
 
 (defun pipenv--get-executables-dir ()
@@ -171,14 +166,14 @@
    :filter filter
    :sentinel sentinel
    :connection-type 'pipe
-  )
-)
+  ))
 
 (defun pipenv--command (args)
   "Call Pipenv with ARGS and the default filter stack."
   (let ((command (cons pipenv-executable args))
-        (filter 'pipenv--process-filter))
-    (pipenv--make-pipenv-process command filter)))
+        (filter 'pipenv--process-filter)
+	(sentinel 'pipenv--messaging-sentinel))
+    (pipenv--make-pipenv-process command filter sentinel)))
 
 ;;
 ;; Interactive commands that implement the Pipenv interface in Emacs.
@@ -289,8 +284,12 @@ or (if none is given), installs all packages."
     (find-file ideal-path)))
 
 (defun pipenv--messaging-sentinel (process event)
-  "Send EVENT notifications for PROCESS to *Messages* buffer."
-  (message "Process %s: event %S" process (s-chomp event)))
+  "Send EVENT notifications for PROCESS to *Messages* buffer and to process buffer."
+  (let ((msg (format "%s %s" (s-join " " (process-command process)) (s-chomp event))))
+    (message msg)
+    (with-current-buffer (process-buffer process)
+      (insert "\n")
+      (insert msg))))
 
 (defun pipenv--check-output (&rest command)
   "Run COMMAND and return its standard output.
