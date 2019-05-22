@@ -371,7 +371,8 @@ to latest compatible versions."
 (defun pipenv-executable-find (executable)
   "Find EXECUTABLE in the executable path of an activate virtual environment."
   (when (bound-and-true-p python-shell-virtualenv-root)
-    (locate-file executable (python-shell-calculate-exec-path))))
+    (let ((exec-path (python-shell-calculate-exec-path)))
+      (executable-find executable))))
 
 ;;
 ;; Integration with 3rd party packages.
