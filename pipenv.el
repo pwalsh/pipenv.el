@@ -106,7 +106,8 @@
 
 (defun pipenv--clean-response (response)
   "Clean up RESPONSE from shell command."
-  (s-chomp response))
+  (car
+   (s-lines response)))
 
 (defun pipenv--force-list (argument)
   "Force ARGUMENT to a list."
