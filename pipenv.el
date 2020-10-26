@@ -179,11 +179,6 @@
 ;; Interactive commands that implement the Pipenv interface in Emacs.
 ;;
 
-(defun pipenv-update ()
-  "Update Pipenv and pip to latest."
-  (interactive)
-  (pipenv--command (list "--update")))
-
 (defun pipenv-where ()
   "Return path to project home directory, or a message if not in a Pipenv project."
   (interactive)
