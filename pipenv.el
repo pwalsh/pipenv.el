@@ -140,8 +140,7 @@
   (when (and
          (s-equals? (nth 0 (last (process-command process))) "--venv")
          (f-directory? response))
-    (setq python-shell-virtualenv-root response))
-  (setq pipenv-process-response response))
+    (setq python-shell-virtualenv-root response)))
 
 (defun pipenv--process-filter (process response)
   "Pipenv default filter stack PROCESS and RESPONSE handling."
