@@ -139,7 +139,7 @@
   "Filter for PROCESS, which sets several global variables based on RESPONSE."
   (when (and
          (s-equals? (nth 0 (last (process-command process))) "--venv")
-         (f-directory? response))
+         (file-directory-p response))
     (setq python-shell-virtualenv-root response)))
 
 (defun pipenv--process-filter (process response)
@@ -151,7 +151,7 @@
 (defun pipenv--get-executables-dir ()
   "Get the directory of executables in an active virtual environment, or nil."
   (when (and python-shell-virtualenv-root
-             (f-directory? python-shell-virtualenv-root))
+             (file-directory-p python-shell-virtualenv-root))
     (concat
      (file-name-as-directory python-shell-virtualenv-root)
      (if (eq system-type 'windows-nt) "Scripts" "bin"))))
