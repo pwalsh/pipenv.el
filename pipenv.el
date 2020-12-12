@@ -174,6 +174,14 @@
         (sentinel 'pipenv--messaging-sentinel))
     (pipenv--make-pipenv-process command filter sentinel)))
 
+(defun pipenv--f-parent (path)
+  "Return the parent directory to PATH.  see `f-parent'."
+  (let ((parent (file-name-directory
+                 (directory-file-name (f-expand path default-directory)))))
+    (if (file-name-absolute-p path)
+        (directory-file-name parent)
+      (file-relative-name parent))))
+
 ;;
 ;; Interactive commands that implement the Pipenv interface in Emacs.
 ;;
@@ -273,7 +281,7 @@ or (if none is given), installs all packages."
                       (s-trim)
                       (s-replace-all replacements)))
          (ideal-path (if (s-contains? suffix real-path)
-                         (f-dirname real-path)
+                         (pipenv--f-parent real-path)
                        real-path)))
     (find-file ideal-path)))
 
