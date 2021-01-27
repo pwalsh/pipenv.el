@@ -5,7 +5,7 @@
 ;; Author: Paul Walsh <paulywalsh@gmail.com>
 ;; URL: https://github.com/pwalsh/pipenv.el
 ;; Version: 0.0.1-beta
-;; Package-Requires: ((emacs "25.1") (f "0.19.0") (s "1.12.0") (pyvenv "1.20"))
+;; Package-Requires: ((emacs "25.1") (s "1.12.0") (pyvenv "1.20"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -26,7 +26,6 @@
 
 ;;; Code:
 
-(require 'f)
 (require 'python)
 (require 's)
 (require 'subr-x)
@@ -139,7 +138,7 @@
   "Filter for PROCESS, which sets several global variables based on RESPONSE."
   (when (and
          (s-equals? (nth 0 (last (process-command process))) "--venv")
-         (f-directory? response))
+         (file-directory-p response))
     (setq python-shell-virtualenv-root response)))
 
 (defun pipenv--process-filter (process response)
@@ -151,7 +150,7 @@
 (defun pipenv--get-executables-dir ()
   "Get the directory of executables in an active virtual environment, or nil."
   (when (and python-shell-virtualenv-root
-             (f-directory? python-shell-virtualenv-root))
+             (file-directory-p python-shell-virtualenv-root))
     (concat
      (file-name-as-directory python-shell-virtualenv-root)
      (if (eq system-type 'windows-nt) "Scripts" "bin"))))
@@ -173,6 +172,14 @@
         (filter 'pipenv--process-filter)
         (sentinel 'pipenv--messaging-sentinel))
     (pipenv--make-pipenv-process command filter sentinel)))
+
+(defun pipenv--f-parent (path)
+  "Return the parent directory to PATH.  see `f-parent'."
+  (let ((parent (file-name-directory
+                 (directory-file-name (f-expand path default-directory)))))
+    (if (file-name-absolute-p path)
+        (directory-file-name parent)
+      (file-relative-name parent))))
 
 ;;
 ;; Interactive commands that implement the Pipenv interface in Emacs.
@@ -273,7 +280,7 @@ or (if none is given), installs all packages."
                       (s-trim)
                       (s-replace-all replacements)))
          (ideal-path (if (s-contains? suffix real-path)
-                         (f-dirname real-path)
+                         (pipenv--f-parent real-path)
                        real-path)))
     (find-file ideal-path)))
 
