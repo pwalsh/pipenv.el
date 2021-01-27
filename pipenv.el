@@ -116,6 +116,9 @@
 
 (defun pipenv--force-wait (process)
   "Block until PROCESS exits successfully."
+  ;; Adding a sit-for in a sentinel seems to give the process time to update its
+  ;; status which can help process-live-p from ever returning true
+  (set-process-sentinel process (lambda (proc event) (sit-for 0.1)))
   (while (process-live-p process)
     (sit-for 0.1 t)))
 
