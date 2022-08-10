@@ -179,7 +179,7 @@
 (defun pipenv--f-parent (path)
   "Return the parent directory to PATH.  see `f-parent'."
   (let ((parent (file-name-directory
-                 (directory-file-name (f-expand path default-directory)))))
+                 (directory-file-name (expand-file-name path default-directory)))))
     (if (file-name-absolute-p path)
         (directory-file-name parent)
       (file-relative-name parent))))
